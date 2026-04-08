@@ -23,7 +23,7 @@ class ApoderadoFactory extends Factory
     {
         return [
             'nombres' => $this->faker->firstName(),
-            'apellidos' => $this->faker->lastName() . ' ' . $this->faker->lastName(),
+            'apellidos' => $this->faker->lastName().' '.$this->faker->lastName(),
             'celular' => $this->faker->numerify('9########'), // Genera un número de 9 dígitos
         ];
     }

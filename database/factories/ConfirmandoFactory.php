@@ -24,10 +24,11 @@ class ConfirmandoFactory extends Factory
     {
         return [
             'nombres' => $this->faker->firstName(),
-            'apellidos' => $this->faker->lastName() . ' ' . $this->faker->lastName(),
+            'apellidos' => $this->faker->lastName().' '.$this->faker->lastName(),
             'celular' => $this->faker->numerify('9########'),
-            'fecha_nacimiento' => $this->faker->dateTimeBetween('-17 years', '-15 years'), // Jóvenes de 15 a 17 años
-            
+            'genero' => $this->faker->randomElement(['m', 'f']),
+            'fecha_nacimiento' => $this->faker->dateTimeBetween('-17 years', '-15 years'),
+
             // Asigna un 'grupo_id' de un grupo que ya exista
             'grupo_id' => Grupo::inRandomOrder()->first()->id,
         ];

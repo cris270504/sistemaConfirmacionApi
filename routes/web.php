@@ -3,5 +3,5 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return '¡HOLA CHRISTOPHER! El túnel funciona correctamente.';
 });

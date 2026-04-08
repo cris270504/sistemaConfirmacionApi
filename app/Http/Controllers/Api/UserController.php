@@ -12,12 +12,12 @@ class UserController extends Controller
 {
     public function index()
     {
-        return User::with(['roles','grupo'])->latest()->get();
+        return User::with(['roles', 'grupo'])->latest()->get();
     }
 
     public function show($id)
     {
-        return User::with(['roles','grupo'])->findOrFail($id);
+        return User::with(['roles', 'grupo'])->findOrFail($id);
     }
 
     public function store(Request $request)
@@ -25,7 +25,9 @@ class UserController extends Controller
         $validatedData = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'dni' => ['required', 'string', 'max:8', 'unique:users,dni'],
+            'celular' => ['nullable','string','max:9'],
             'email' => ['required', 'email', 'max:150', 'unique:users,email'],
+            'fecha_nacimiento' => ['date','nullable'],
             'roles' => ['required', 'array', 'min:1'],
             'roles.*' => ['string', 'exists:roles,name'],
         ]);
@@ -34,7 +36,9 @@ class UserController extends Controller
         $user = User::create([
             'name' => $validatedData['name'],
             'dni' => $validatedData['dni'],
+            'celular' => $validatedData['celular'],
             'email' => $validatedData['email'],
+            'fecha_nacimiento' => $validatedData['fecha_nacimiento'],
             'password' => Hash::make('123456789'),
         ]);
 
@@ -48,10 +52,11 @@ class UserController extends Controller
                 'name' => $user->name,
                 'dni' => $user->dni,
                 'email' => $user->email,
+                'fecha_nacimiento' => $user->fecha_nacimiento,
                 'roles' => $user->roles->pluck('name'),
             ],
         ], 201);
-        
+
     }
 
     public function update(Request $request, $id)
@@ -61,11 +66,13 @@ class UserController extends Controller
         // La validación aquí está bien, permite actualizar email y contraseña opcionalmente
         $data = $request->validate([
             'name' => ['sometimes', 'required', 'string', 'max:100'],
-            'dni' => ['sometimes','required','string','max:8',Rule::unique('users')->ignore($user->id),],
+            'dni' => ['sometimes', 'required', 'string', 'max:8', Rule::unique('users')->ignore($user->id)],
+            'celular' => ['sometimes','nullable','string','max:9'],
             'email' => [
                 'sometimes', 'required', 'email', 'max:150',
                 Rule::unique('users')->ignore($user->id),
             ],
+            'fecha_nacimiento' => ['sometimes', 'nullable', 'date'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'roles' => ['sometimes', 'array'], // 'sometimes' permite no enviar roles si no cambian
             'roles.*' => ['string', 'exists:roles,name'],
@@ -75,11 +82,15 @@ class UserController extends Controller
         if (isset($data['name'])) {
             $user->name = $data['name'];
         }
-        if (isset($data['dni'])){
+        if (isset($data['dni'])) {
             $user->dni = $data['dni'];
         }
         if (isset($data['email'])) {
             $user->email = $data['email'];
+        }
+
+        if (isset($data['fecha_nacimiento'])){
+            $user->fecha_nacimiento = $data['fecha_nacimiento'];
         }
 
         // Actualizar contraseña solo si se envió una nueva
@@ -100,9 +111,11 @@ class UserController extends Controller
             'message' => 'Usuario actualizado con éxito',
             'user' => [
                 'id' => $user->id,
-                'name' => $user->name,  
+                'name' => $user->name,
+                'celular' => $user->celular,
                 'dni' => $user->dni,
                 'email' => $user->email,
+                'fecha_nacimiento' => $user->fecha_nacimiento,
                 'roles' => $user->roles->pluck('name'),
             ],
         ]);

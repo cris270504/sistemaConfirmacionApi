@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('asistencia', function (Blueprint $table) {
             $table->id();
             $table->foreignId('reunion_id')->constrained('reunions')->onDelete('cascade');
-            $table->enum('estado', ['Asistió', 'Tardanza', 'Faltó']);
+            $table->enum('estado', ['asistio', 'tardanza', 'falta justificada', 'falta injustificada']);
             $table->morphs('asistente');
+            $table->string('nota')->nullable();
             $table->timestamps();
         });
     }

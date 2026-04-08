@@ -17,21 +17,16 @@ class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
 
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // 1. Ejecuta el Seeder de Roles y Permisos primero
-        // Asegúrate que tu seeder de roles cree los usuarios de prueba
         $this->call(RolePermissionUserSeeder::class);
-
-        $this->command->info('Creando datos fijos (Grupos, Sacramentos, Requisitos)...');
+        $this->command->info('Creando datos fijos...');
 
         // 2. Crear Grupos
-        $grupo1 = Grupo::create(['nombre' => 'Grupo San Pablo', 'periodo' => '2025-2026']);
-        $grupo2 = Grupo::create(['nombre' => 'Grupo San Pedro', 'periodo' => '2025-2026']);
-        $grupo3 = Grupo::create(['nombre' => 'Grupo María Auxiliadora', 'periodo' => '2025-2026']);
+        $grupo1 = Grupo::create(['nombre' => 'Grupo San Pablo', 'color' => '#ff5252','periodo' => '2025-2026']);
+        $grupo2 = Grupo::create(['nombre' => 'Grupo San Pedro', 'color' => '#fff652ff', 'periodo' => '2025-2026']);
+        $grupo3 = Grupo::create(['nombre' => 'Grupo María Auxiliadora', 'color' => '#7df85bff', 'periodo' => '2025-2026']);
+        $listaGruposIds = [$grupo1->id, $grupo2->id, $grupo3->id];
 
         // 3. Crear Tipos de Apoderado
         $tipoPadre = TipoApoderado::create(['nombre' => 'Padre']);
@@ -45,119 +40,152 @@ class DatabaseSeeder extends Seeder
         $confirmacion = Sacramento::create(['nombre' => 'Confirmación']);
 
         // 5. Crear Requisitos
-        $listaRequisitos = [
-            'Acta de nacimiento del confirmando', 'Copia de DNI del confirmando', 'Partida de Bautismo del confirmando',
-            'Estipendio', 'Partida de Confirmación del Padrino', 'Partida de Confirmación de la Madrina',
-            'Partida de Matrimonio del Padrino', 'Partida de Matrimonio de la Madrina', 'Copia de DNI del Padrino',
-            'Copia de DNI de la Madrina', 'Copia de DNI de los apoderados',
+        $reqs = [];
+        $nombresRequisitos = [
+            // Generales
+            'ActaNac' => 'Acta de nacimiento del confirmando',
+            'DniConf' => 'Copia de DNI del confirmando',
+            'DniApod' => 'Copia de DNI de los apoderados',
+            
+            // Documentos Previos
+            'PartBaut' => 'Partida de Bautismo',
+
+            // Estipendios (Pagos)
+            'PagoBautismo' => 'Estipendio por Bautismo',
+            'PagoComunion' => 'Estipendio por Primera Comunión',
+            'PagoConfirmacion' => 'Estipendio por Confirmación',
+
+            // Padrinos Bautismo
+            'DocPadrinoBaut' => 'Constancia de Confirmación o Matrimonio del Padrino',
+            'DocMadrinaBaut' => 'Constancia de Confirmación o Matrimonio de la Madrina',
+            'DniPadrinoBaut' => 'Copia de DNI del Padrino',
+            'DniMadrinaBaut' => 'Copia de DNI de la Madrina',
+
+            // Padrinos Confirmación
+            'DocPadrinoConf' => 'Constancia de Confirmación o Matrimonio del Padrino/Madrina',
+            'DniPadrinoConf' => 'Copia de DNI del Padrino/Madrina',
         ];
-        $requisitos = collect(); // Usamos una colección para guardarlos
-        foreach ($listaRequisitos as $nombre) {
-            $requisitos->push(Requisito::create(['nombre' => $nombre]));
+
+        foreach ($nombresRequisitos as $key => $nombre) {
+            $reqs[$key] = Requisito::create(['nombre' => $nombre])->id;
         }
 
-        // 6. Asignar Catequistas a Grupos (de los usuarios de prueba)
-        // ASIGNACIÓN 1
-        $catequista1 = User::where('email', 'cristopher@test.com')->first();
-        if ($catequista1) {
-            $catequista1->update(['grupo_id' => $grupo1->id]);
-        }
+        // 6. Asignar Catequistas
+        $catequista1 = User::where('email', 'catequista1@test.com')->first();
+        if ($catequista1) $catequista1->update(['grupo_id' => $grupo1->id]);
 
-        // ASIGNACIÓN 2 (CORREGIDO)
-        $catequista2 = User::where('email', 'Domenick@test.com')->first();
-        if ($catequista2) {
-            $catequista2->update(['grupo_id' => $grupo2->id]);
-        }
+        $catequista2 = User::where('email', 'catequista2@test.com')->first();
+        if ($catequista2) $catequista2->update(['grupo_id' => $grupo2->id]);
 
-        // ASIGNACIÓN 3 (CORREGIDO)
-        $catequista3 = User::where('email', 'Requena@test.com')->first();
-        if ($catequista3) {
-            $catequista3->update(['grupo_id' => $grupo3->id]);
-        }
+        $catequista3 = User::where('email', 'catequista3@test.com')->first();
+        if ($catequista3) $catequista3->update(['grupo_id' => $grupo3->id]);
 
-        $catequista4 = User::where('email', 'yenn@test.com')->first();
-        if ($catequista4) {
-            $catequista4->update(['grupo_id' => $grupo3->id]);
-        }
-
-        // 7. Relacionar Sacramentos con Requisitos (Lógica de negocio) (CORREGIDO)
-        $this->command->info('Asignando requisitos a sacramentos...');
-
-        // Requisitos para Bautismo
+        // 7. Relacionar Sacramentos con Requisitos por Defecto
+        // Bautismo
         $bautismo->requisitos()->attach([
-            $requisitos->where('nombre', 'Acta de nacimiento del confirmando')->first()->id,
-            $requisitos->where('nombre', 'Copia de DNI del confirmando')->first()->id,
-            $requisitos->where('nombre', 'Copia de DNI de los apoderados')->first()->id,
-            $requisitos->where('nombre', 'Partida de Confirmación del Padrino')->first()->id,
-            $requisitos->where('nombre', 'Partida de Matrimonio del Padrino')->first()->id,
-            $requisitos->where('nombre', 'Partida de Confirmación de la Madrina')->first()->id,
-            $requisitos->where('nombre', 'Partida de Matrimonio de la Madrina')->first()->id,
-            $requisitos->where('nombre', 'Copia de DNI del Padrino')->first()->id,
-            $requisitos->where('nombre', 'Copia de DNI de la Madrina')->first()->id,
+            $reqs['ActaNac'], $reqs['DniConf'], $reqs['DniApod'], 
+            $reqs['PagoBautismo'], $reqs['PagoComunion'], $reqs['PagoConfirmacion'],
+            $reqs['DocPadrinoBaut'], $reqs['DniPadrinoBaut'], 
+            $reqs['DocMadrinaBaut'], $reqs['DniMadrinaBaut']
         ]);
 
-        // Requisitos para Primera Comunión
+        // PRIMERA COMUNIÓN: Pide documentos de Comunión + LOS 2 ESTIPENDIOS RESTANTES
         $comunion->requisitos()->attach([
-            $requisitos->where('nombre', 'Partida de Bautismo del confirmando')->first()->id,
-            $requisitos->where('nombre', 'Copia de DNI del confirmando')->first()->id,
+            $reqs['PartBaut'], $reqs['DniConf'], 
+            $reqs['PagoComunion'], $reqs['PagoConfirmacion']
         ]);
 
-        // Requisitos para Confirmación (La lógica 'OR' se maneja en la app)
+        // CONFIRMACIÓN: Pide documentos de Confirmación + SOLO SU ESTIPENDIO
         $confirmacion->requisitos()->attach([
-            $requisitos->where('nombre', 'Partida de Bautismo del confirmando')->first()->id,
-            $requisitos->where('nombre', 'Copia de DNI del confirmando')->first()->id,
-            $requisitos->where('nombre', 'Partida de Confirmación del Padrino')->first()->id,
-            $requisitos->where('nombre', 'Partida de Confirmación de la Madrina')->first()->id,
-            $requisitos->where('nombre', 'Partida de Matrimonio del Padrino')->first()->id,
-            $requisitos->where('nombre', 'Partida de Matrimonio de la Madrina')->first()->id,
-            $requisitos->where('nombre', 'Copia de DNI del Padrino')->first()->id,
-            $requisitos->where('nombre', 'Copia de DNI de la Madrina')->first()->id,
+            $reqs['PartBaut'], $reqs['DniConf'], 
+            $reqs['PagoConfirmacion'], 
+            $reqs['DocPadrinoConf'], $reqs['DniPadrinoConf']
         ]);
 
 
-        $this->command->info('Creando datos falsos (Apoderados y Confirmandos)...');
+        $this->command->info('Generando Confirmandos...');
 
-        // 8. Crear Apoderados falsos (usando la Factory)
-        $apoderados = Apoderado::factory(100)->create(); // Crea 100 apoderados
+        $apoderados = Apoderado::factory(100)->create();
 
-        // 9. Crear Confirmandos falsos y sus relaciones (usando la Factory)
-        // (CORREGIDO: Se añadieron $bautismo, $comunion, $confirmacion al 'use')
-        Confirmando::factory(50)->create()->each(function ($confirmando) use ($apoderados, $tiposApoderado, $requisitos, $bautismo, $comunion, $confirmacion) {
+Confirmando::factory(50)->create([
+            'grupo_id' => fn() => Arr::random($listaGruposIds)
+        ])->each(function ($confirmando) use ($apoderados, $tiposApoderado, $bautismo, $comunion, $confirmacion, $reqs) {
 
-            // A. Asignar 1 o 2 apoderados aleatorios a este confirmando
+            // A. Asignar Apoderados
             $apoderadosAleatorios = $apoderados->random(rand(1, 2));
             foreach ($apoderadosAleatorios as $apoderado) {
-                $confirmando->apoderados()->attach($apoderado->id, [
-                    'tipo_apoderado_id' => Arr::random($tiposApoderado), // Elige un tipo al azar
-                ]);
+                $confirmando->apoderados()->attach($apoderado->id, ['tipo_apoderado_id' => Arr::random($tiposApoderado)]);
             }
 
-            // B. Asignar sacramentos (simulando su estado)
-            // Todos están pendientes de Confirmación
-            $confirmando->sacramentos()->attach($confirmacion->id, ['estado' => 'Pendiente']);
+            // B. LÓGICA DE OBJETIVO Y ESTIPENDIOS ACUMULATIVOS
+            $sacramento_faltante = Arr::random(['bautismo', 'comunion', 'confirmacion']);
+            $requisitosParaAsignar = [];
 
-            // Algunos están pendientes de Bautismo, otros ya lo tienen
-            $confirmando->sacramentos()->attach($bautismo->id, [
-                'estado' => Arr::random(['Pendiente', 'Recibido']),
-            ]);
-            $confirmando->sacramentos()->attach($comunion->id, [
-                'estado' => Arr::random(['Pendiente', 'Recibido']),
-            ]);
+            if ($sacramento_faltante === 'bautismo') {
+                // --- CASO 1: LE FALTA BAUTISMO (Y TODO LO DEMÁS) ---
+                // Sacramento actual: Bautismo
+                $confirmando->sacramentos()->attach($bautismo->id, ['estado' => 'pendiente']);
+                
+                // Documentos
+                $requisitosParaAsignar[] = $reqs['ActaNac'];
+                $requisitosParaAsignar[] = $reqs['DniConf'];
+                $requisitosParaAsignar[] = $reqs['DniApod'];
+                // Padrinos Bautismo
+                $requisitosParaAsignar[] = $reqs['DocPadrinoBaut'];
+                $requisitosParaAsignar[] = $reqs['DniPadrinoBaut'];
+                $requisitosParaAsignar[] = $reqs['DocMadrinaBaut'];
+                $requisitosParaAsignar[] = $reqs['DniMadrinaBaut'];
+                
+                // --- CORRECCIÓN: PAGO DE LOS 3 SACRAMENTOS ---
+                $requisitosParaAsignar[] = $reqs['PagoBautismo'];
+                $requisitosParaAsignar[] = $reqs['PagoComunion'];
+                $requisitosParaAsignar[] = $reqs['PagoConfirmacion'];
 
-            // C. Asignar requisitos (simulando su estado)
-            // Esta lógica ahora es más compleja. Asignaremos requisitos basados en sacramentos pendientes.
-            // Para este seeder, mantendremos la lógica aleatoria simple para tener datos de prueba.
-            // La lógica real de asignación debe estar en tu aplicación (al crear un Confirmando).
-            $requisitosAleatorios = $requisitos->random(rand(3, 6)); // Asigna entre 3 y 6 requisitos al azar
-            foreach ($requisitosAleatorios as $requisito) {
-                $estado = Arr::random(['Pendiente', 'Entregado']);
-                $confirmando->requisitos()->attach($requisito->id, [
-                    'estado' => $estado,
-                    'fecha_entrega' => $estado != 'Pendiente' ? now()->subDays(rand(1, 60)) : null,
-                ]);
+            } elseif ($sacramento_faltante === 'comunion') {
+                // --- CASO 2: LE FALTA COMUNIÓN (YA TIENE BAUTISMO) ---
+                $confirmando->sacramentos()->attach($bautismo->id, ['estado' => 'recibido']);
+                $confirmando->sacramentos()->attach($comunion->id, ['estado' => 'pendiente']);
+
+                // Documentos
+                $requisitosParaAsignar[] = $reqs['DniConf'];
+                $requisitosParaAsignar[] = $reqs['PartBaut']; // Prueba del anterior
+                
+                // --- CORRECCIÓN: PAGO DE LOS 2 RESTANTES ---
+                $requisitosParaAsignar[] = $reqs['PagoComunion'];
+                $requisitosParaAsignar[] = $reqs['PagoConfirmacion'];
+
+            } elseif ($sacramento_faltante === 'confirmacion') {
+                // --- CASO 3: SOLO LE FALTA CONFIRMACIÓN ---
+                $confirmando->sacramentos()->attach($bautismo->id, ['estado' => 'recibido']);
+                $confirmando->sacramentos()->attach($comunion->id, ['estado' => 'recibido']);
+                $confirmando->sacramentos()->attach($confirmacion->id, ['estado' => 'pendiente']);
+
+                // Documentos
+                $requisitosParaAsignar[] = $reqs['DniConf'];
+                $requisitosParaAsignar[] = $reqs['PartBaut'];
+                // Padrinos Confirmación
+                $requisitosParaAsignar[] = $reqs['DocPadrinoConf'];
+                $requisitosParaAsignar[] = $reqs['DniPadrinoConf'];
+
+                // --- CORRECCIÓN: PAGO SOLO DEL ÚLTIMO ---
+                $requisitosParaAsignar[] = $reqs['PagoConfirmacion'];
             }
+
+            // Guardamos los requisitos específicos
+            $this->asignarRequisitos($confirmando, $requisitosParaAsignar);
         });
 
-        $this->command->info('✅ ¡Base de datos poblada con datos de prueba!');
+        $this->command->info('✅ Base de datos poblada correctamente.');
+    }
+
+    private function asignarRequisitos($confirmando, $listaIds) {
+        $listaIds = array_unique($listaIds);
+        foreach ($listaIds as $reqId) {
+            $estado = Arr::random(['pendiente', 'entregado']);
+            $confirmando->requisitos()->attach($reqId, [
+                'estado' => $estado,
+                'fecha_entrega' => $estado == 'entregado' ? now()->subDays(rand(1, 30)) : null,
+            ]);
+        }
     }
 }

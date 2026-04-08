@@ -16,7 +16,17 @@ class GrupoController extends Controller
 
     public function show($id)
     {
-        return Grupo::with(['confirmandos', 'catequistas'])->findOrFail($id);
+        $grupo = Grupo::with([
+            'catequistas',
+            'confirmandos.apoderados',
+            'confirmandos.sacramentos',
+            'confirmandos.requisitos',
+        ])->find($id);
+
+        if (!$grupo) {
+        return response()->json(['message' => 'Grupo no encontrado'], 404);
+    }
+        return response()->json($grupo);
     }
 
     public function store(Request $request)
@@ -24,6 +34,7 @@ class GrupoController extends Controller
         $data = $request->validate([
             'nombre' => ['required', 'string', 'max:255', 'unique:grupos,nombre'],
             'periodo' => ['required', 'string', 'max:255'],
+            'color' => ['required', 'string', 'max:7'],
         ]);
 
         $grupo = Grupo::create($data);
@@ -34,6 +45,7 @@ class GrupoController extends Controller
             'grupo' => [
                 'nombre' => $grupo->nombre,
                 'periodo' => $grupo->periodo,
+                'color' => $grupo->color,
             ],
         ], 201);
     }
@@ -45,6 +57,7 @@ class GrupoController extends Controller
         $data = $request->validate([
             'nombre' => ['sometimes', 'string', 'max:255', 'unique:grupos,nombre,'.$grupo->id],
             'periodo' => ['sometimes', 'string', 'max:255'],
+            'color' => ['sometimes', 'required', 'string', 'max:7'],
         ]);
 
         $grupo->update($data);
@@ -56,6 +69,7 @@ class GrupoController extends Controller
             'grupo' => [
                 'nombre' => $grupo->nombre,
                 'periodo' => $grupo->periodo,
+                'color' => $grupo->color,
             ],
         ], 201);
     }
@@ -88,6 +102,19 @@ class GrupoController extends Controller
             'message' => 'Catequistas actualizados',
             'grupo' => $grupo->load('catequistas'),
         ]);
+    }
+
+    public function getApoderados($id)
+    {
+        $grupo = Grupo::findOrFail($id);
+
+        $apoderados = \App\Models\Apoderado::whereHas('confirmandos', function ($query) use ($grupo) {
+            $query->where('grupo_id', $grupo->id);
+        })
+            ->with('confirmandos:id,nombres,apellidos')
+            ->get();
+
+        return response()->json($apoderados);
     }
 
     public function syncConfirmandos(Request $request, Grupo $grupo)

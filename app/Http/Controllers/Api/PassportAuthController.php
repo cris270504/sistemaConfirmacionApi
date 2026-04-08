@@ -16,11 +16,11 @@ class PassportAuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'dni'    => ['required', 'string','max:8'],
-            'password' => ['required','string'],
+            'dni' => ['required', 'string', 'max:8'],
+            'password' => ['required', 'string'],
         ]);
 
-        if (!Auth::attempt($credentials)) {
+        if (! Auth::attempt($credentials)) {
             return response()->json(['message' => 'Credenciales inválidas'], 401);
         }
 
@@ -32,14 +32,14 @@ class PassportAuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'user'  => [
-                'id'          => $user->id,
-                'name'        => $user->name,
-                'dni'         => $user->dni,
-                'email'       => $user->email,
-                'roles'       => $user->getRoleNames(),
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'dni' => $user->dni,
+                'email' => $user->email,
+                'roles' => $user->getRoleNames(),
                 'permissions' => $user->getAllPermissions()->pluck('name'),
-                'grupo_id'    => $user->grupo_id,
+                'grupo_id' => $user->grupo_id,
             ],
         ]);
     }
@@ -52,11 +52,11 @@ class PassportAuthController extends Controller
         $user = $request->user();
 
         return response()->json([
-            'id'          => $user->id,
-            'name'        => $user->name,
-            'email'       => $user->email,
-            'dni'         => $user->dni,
-            'roles'       => $user->getRoleNames(),
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'dni' => $user->dni,
+            'roles' => $user->getRoleNames(),
             'permissions' => $user->getAllPermissions()->pluck('name'),
         ]);
     }

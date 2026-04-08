@@ -16,6 +16,7 @@ return new class extends Migration
 
             $table->string('nombre');
             $table->string('periodo');
+            $table->string('color', 9);
 
             $table->timestamps();
         });

@@ -10,6 +10,7 @@ class Apoderado extends Model
 {
     // 2. AÑADE ESTE 'USE'
     use HasFactory;
+
     protected $fillable = [
         'nombres',
         'apellidos',
@@ -25,6 +26,4 @@ class Apoderado extends Model
     {
         return $this->morphMany(Asistencia::class, 'asistente');
     }
-
-
 }

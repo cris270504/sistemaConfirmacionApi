@@ -16,7 +16,7 @@ return new class extends Migration
 
             $table->string('nombres');
             $table->string('apellidos');
-            $table->string('celular',9)->nullable();
+            $table->char('celular', 9)->nullable();
 
             $table->timestamps();
         });

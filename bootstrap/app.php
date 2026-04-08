@@ -17,6 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);
+        $middleware->validateCsrfTokens(except: [
+            '*', // Opcional: Desactiva CSRF temporalmente si tienes problemas con eso
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

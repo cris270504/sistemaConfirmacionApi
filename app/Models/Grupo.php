@@ -6,10 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Grupo extends Model
 {
-
     protected $fillable = [
         'nombre',
         'periodo',
+        'color',
     ];
 
     public function catequistas()

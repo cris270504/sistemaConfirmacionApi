@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 
 class RoleController extends Controller
 {
@@ -17,6 +16,7 @@ class RoleController extends Controller
     public function show($id)
     {
         $role = Role::with('permissions')->findOrFail($id);
+
         return response()->json($role);
     }
 
@@ -24,7 +24,7 @@ class RoleController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:150|unique:roles,name',
-            'permissions' => 'array'
+            'permissions' => 'array',
         ]);
 
         $role = Role::create([
@@ -32,7 +32,7 @@ class RoleController extends Controller
             'guard_name' => 'api',
         ]);
 
-        if (!empty($data['permissions'])) {
+        if (! empty($data['permissions'])) {
             $role->syncPermissions($data['permissions']);
         }
 
@@ -44,8 +44,9 @@ class RoleController extends Controller
         $role = Role::findOrFail($id);
 
         $data = $request->validate([
-            'name' => 'sometimes|required|string|max:150|unique:roles,name,' . $role->id,
-            'permissions' => 'array'
+            'name' => 'sometimes|required|string|max:150|unique:roles,name,'.$role->id,
+            'permissions' => 'array',
+            'permissions.*' => 'string|exists:permissions,name',
         ]);
 
         if (isset($data['name'])) {
@@ -63,8 +64,13 @@ class RoleController extends Controller
     public function destroy($id)
     {
         $role = Role::findOrFail($id);
+
+        if (in_array($role->name, ['super-admin', 'coordinador'])) {
+            return response()->json(['message' => 'No puedes eliminar roles del sistema'], 403);
+        }
+
         $role->delete();
 
-        return response()->json(['message' => 'Rol eliminado correctamente']);
+        return response()->json(null, 204);
     }
 }

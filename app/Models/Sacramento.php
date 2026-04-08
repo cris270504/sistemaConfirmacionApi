@@ -15,7 +15,8 @@ class Sacramento extends Model
         return $this->belongsToMany(Requisito::class, 'sacramento_requisito');
     }
 
-    public function confirmandos() {
+    public function confirmandos()
+    {
         return $this->belongsToMany(Confirmando::class, 'confirmando_sacramento')->withPivot('estado');
     }
 }

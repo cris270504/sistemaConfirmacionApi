@@ -22,14 +22,16 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'celular',
         'email',
         'password',
         'dni',
+        'fecha_nacimiento',
     ];
 
     public function grupo()
     {
-       return $this->belongsTo(Grupo::class, 'grupo_id');
+        return $this->belongsTo(Grupo::class, 'grupo_id');
     }
 
     public function reunionesAsignadas()

@@ -14,6 +14,7 @@ class Confirmando extends Model
         'nombres',
         'apellidos',
         'celular',
+        'genero',
         'fecha_nacimiento',
         'grupo_id',
     ];
@@ -33,13 +34,13 @@ class Confirmando extends Model
         return $this->belongsToMany(Sacramento::class, 'confirmando_sacramento')->withPivot('estado');
     }
 
-    public function requisitos() {
-        return $this->belongsToMany(Requisito::class,'confirmando_requisito')->withPivot(['estado', 'fecha_entrega']);
+    public function requisitos()
+    {
+        return $this->belongsToMany(Requisito::class, 'confirmando_requisito')->withPivot(['estado', 'fecha_entrega']);
     }
-        
+
     public function asistencias(): MorphMany
     {
         return $this->morphMany(Asistencia::class, 'asistente');
     }
-
 }

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('confirmando_id')->constrained('confirmandos')->onDelete('cascade');
             $table->foreignId('requisito_id')->constrained('requisitos')->onDelete('cascade');
-            $table->enum('estado',['Pendiente','Entregado'])->default('Pendiente');
+            $table->enum('estado', ['pendiente', 'entregado'])->default('pendiente');
             $table->date('fecha_entrega')->nullable();
             $table->unique(['confirmando_id', 'requisito_id']);
             $table->timestamps();

@@ -8,12 +8,13 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 class Asistencia extends Model
 {
     protected $table = 'asistencia';
-    
+
     protected $fillable = [
         'reunion_id',
         'estado',
         'asistente_id',
         'asistente_type',
+        'nota',
     ];
 
     public function reunion()
@@ -25,5 +26,4 @@ class Asistencia extends Model
     {
         return $this->morphTo();
     }
-
 }

@@ -26,17 +26,21 @@ class RolePermissionUserSeeder extends Seeder
             'ver permisos', 'asignar permisos',
 
             // Grupos y Confirmandos
-            'ver grupos', 'ver todos los grupos','crear grupos', 'editar grupos', 'eliminar grupos', 'importar grupos', 
+            'ver grupos', 'ver todos los grupos', 'crear grupos', 'editar grupos', 'eliminar grupos',
             'asignar catequista', 'ver catequistas', 'asignar confirmandos', 'ver confirmandos', 'ver todos los confirmandos',
-            'crear confirmandos', 'editar confirmandos', 'eliminar confirmandos', 'importar confirmandos',
+            'crear confirmandos', 'editar confirmandos', 'eliminar confirmandos',
 
             // Cronograma y Asistencias
             'ver cronograma', 'crear cronograma', 'editar cronograma', 'eliminar cronograma',
-            'ver asistencias', 'crear asistencias', 'editar asistencias', 'importar asistencias',
+            'ver asistencias', 'crear asistencias', 'editar asistencias', 'guardar asistencias',
+            'ver todas las asistencias',
+
+            // Sacramentos
+            'ver sacramentos', 'ver todos los sacramentos', 'crear sacramentos', 'editar sacramentos', 'eliminar sacramentos',
 
             // Requisitos y Reportes
-            'ver requisitos', 'validar requisitos',
-            'generar reportes', 'exportar reportes',
+            'ver requisitos', 'ver todos los requisitos', 'editar requisitos','crear requisitos','eliminar requisitos',
+            'validar requisitos', 'generar reportes', 'exportar reportes',
 
             // Mantenimiento
             'ver mantenimiento', 'crear respaldo', 'restaurar respaldo',
@@ -52,13 +56,17 @@ class RolePermissionUserSeeder extends Seeder
 
         $roleAdmin->syncPermissions(Permission::all());
         $roleCoordinador->syncPermissions(['ver dashboard',
-            'ver grupos', 'ver todos los grupos', 'crear grupos', 'editar grupos', 'eliminar grupos', 'importar grupos', 'asignar catequista',
-            'asignar confirmandos', 'ver confirmandos', 'crear confirmandos', 'editar confirmandos', 'ver todos los confirmandos',
-            'eliminar confirmandos', 'importar confirmandos', 'ver cronograma', 'crear cronograma', 'editar cronograma',
-            'eliminar cronograma', 'generar reportes', 'exportar reportes','editar asistencias',
+            'ver grupos', 'ver todos los grupos', 'crear grupos', 'editar grupos', 'eliminar grupos', 
+            'asignar catequista', 'asignar confirmandos', 'ver confirmandos', 'crear confirmandos', 'editar confirmandos', 
+            'ver todos los confirmandos', 'eliminar confirmandos', 'ver cronograma', 
+            'crear cronograma', 'editar cronograma', 'ver usuarios', 'eliminar cronograma', 'generar reportes',
+            'exportar reportes', 'editar asistencias', 'ver asistencias', 'ver todas las asistencias', 'ver sacramentos',
+            'ver todos los sacramentos', 'crear sacramentos', 'editar sacramentos', 'eliminar sacramentos', 
+            'ver requisitos', 'ver todos los requisitos', 'editar requisitos','crear requisitos','eliminar requisitos',
+            'validar requisitos',
         ]);
         $roleCatequista->syncPermissions(['ver dashboard', 'ver cronograma', 'ver confirmandos', 'ver asistencias', 'ver catequistas',
-            'crear asistencias', 'importar asistencias', 'ver requisitos', 'validar requisitos', 'ver grupos',
+            'guardar asistencias','ver requisitos', 'ver grupos',
         ]);
 
         User::firstOrCreate(

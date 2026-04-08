@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('confirmando_id')->constrained('confirmandos')->onDelete('cascade');
             $table->foreignId('sacramento_id')->constrained('sacramentos')->onDelete('cascade');
-            $table->enum('estado',['Pendiente','Recibido']);
+            $table->enum('estado', ['pendiente', 'recibido']);
             $table->unique(['confirmando_id', 'sacramento_id']);
             $table->timestamps();
         });
